@@ -168,7 +168,13 @@ int tmin(void) {
  */
 int isTmax(int x) {
   // TODO: analysis process
-  return !(x & 0x80000000)/* is negative? 0: 1 */ & !~(x | (x + 1))/* is Tmax? 1: 0 */; 
+  // return !(x & 0x80000000)/* is negative? 0: 1 */ & !~(x | (x + 1))/* is Tmax? 1: 0 */; 
+  int i = x + 1;
+  x = x + i;
+  x = ~x;
+  i = !i;
+  x = x + i;
+  return !x;
 }
 /* 
  * allOddBits - return 1 if all odd-numbered bits in word set to 1
@@ -179,7 +185,13 @@ int isTmax(int x) {
  *   Rating: 2
  */
 int allOddBits(int x) {
-  return !~(((x & 0xAAAAAAAA) >> 1) | x);
+  // return !~(((x & 0xAAAAAAAA) >> 1) | x);
+  int m = 0xAA;
+  m = (m << 8) | m;
+  m = (m << 8) | m;
+  m = (m << 8) | m;
+  m = (m << 8) | m;
+  return !((x & m) ^ m);
 }
 /* 
  * negate - return -x 
