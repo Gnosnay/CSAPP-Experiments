@@ -143,7 +143,11 @@ NOTES:
  *   Rating: 1
  */
 int bitXor(int x, int y) {
-  return 2;
+  int nand = ~(x & y);
+  int a = ~(x & nand);
+  int b = ~(y & nand);
+
+  return ~(a & b);
 }
 /* 
  * tmin - return minimum two's complement integer 
@@ -152,9 +156,7 @@ int bitXor(int x, int y) {
  *   Rating: 1
  */
 int tmin(void) {
-
-  return 2;
-
+  return 1 << 31;
 }
 //2
 /*
@@ -165,7 +167,8 @@ int tmin(void) {
  *   Rating: 1
  */
 int isTmax(int x) {
-  return 2;
+  // TODO: analysis process
+  return !(x & 0x80000000)/* is negative? 0: 1 */ & !~(x | (x + 1))/* is Tmax? 1: 0 */; 
 }
 /* 
  * allOddBits - return 1 if all odd-numbered bits in word set to 1
@@ -176,7 +179,7 @@ int isTmax(int x) {
  *   Rating: 2
  */
 int allOddBits(int x) {
-  return 2;
+  return !~(((x & 0xAAAAAAAA) >> 1) | x);
 }
 /* 
  * negate - return -x 
@@ -186,7 +189,7 @@ int allOddBits(int x) {
  *   Rating: 2
  */
 int negate(int x) {
-  return 2;
+  return (~x + 1);
 }
 //3
 /* 
@@ -199,7 +202,13 @@ int negate(int x) {
  *   Rating: 3
  */
 int isAsciiDigit(int x) {
-  return 2;
+  // TODO: bit ops can determine range
+  int sign = 0x1<<31;
+  int upperBound = ~(sign|0x39);
+  int lowerBound = ~0x30;
+  upperBound = sign&(upperBound+x)>>31;
+  lowerBound = sign&(lowerBound+1+x)>>31;
+  return !(upperBound|lowerBound);
 }
 /* 
  * conditional - same as x ? y : z 
@@ -209,7 +218,9 @@ int isAsciiDigit(int x) {
  *   Rating: 3
  */
 int conditional(int x, int y, int z) {
-  return 2;
+  // TODO: bit ops can equal with conditional operator
+  int flag = (~!!x) + 1;
+  return (flag & y) | (~flag & z);
 }
 /* 
  * isLessOrEqual - if x <= y  then return 1, else return 0 
@@ -219,7 +230,10 @@ int conditional(int x, int y, int z) {
  *   Rating: 3
  */
 int isLessOrEqual(int x, int y) {
-  return 2;
+  int sign = !(x>>31)^!(y>>31);      // is 1 when signs are different
+  int a = sign & (x>>31);            // diff signs and x is neg, gives 1
+  int b = !sign & !((y+(~x+1))>>31); // same signs and difference is positive or = 0, gives 1
+  return a | b;
 }
 //4
 /* 
@@ -231,7 +245,10 @@ int isLessOrEqual(int x, int y) {
  *   Rating: 4 
  */
 int logicalNeg(int x) {
-  return 2;
+  // x and its two's complement are Additive Inverse
+  // | opr and >> make it be -1(D) when x is not 0;
+  // it will be 0 when x is 0
+  return ((x|(~x+1))>>31)+1;
 }
 /* howManyBits - return the minimum number of bits required to represent x in
  *             two's complement
@@ -246,7 +263,23 @@ int logicalNeg(int x) {
  *  Rating: 4
  */
 int howManyBits(int x) {
-  return 0;
+  int b16,b8,b4,b2,b1,b0;
+  int sign=x>>31;
+  x = (sign&~x)|(~sign&x);//如果x为正则不变，否则按位取反（这样好找最高位为1的，原来是最高位为0的，这样也将符号位去掉了）
+
+  // 不断缩小范围
+  b16 = !!(x>>16)<<4;//高十六位是否有1
+  x = x>>b16;//如果有（至少需要16位），则将原数右移16位
+  b8 = !!(x>>8)<<3;//剩余位高8位是否有1
+  x = x>>b8;//如果有（至少需要16+8=24位），则右移8位
+  b4 = !!(x>>4)<<2;//同理
+  x = x>>b4;
+  b2 = !!(x>>2)<<1;
+  x = x>>b2;
+  b1 = !!(x>>1);
+  x = x>>b1;
+  b0 = x;
+  return b16+b8+b4+b2+b1+b0+1;//+1表示加上符号位
 }
 //float
 /* 
@@ -261,7 +294,19 @@ int howManyBits(int x) {
  *   Rating: 4
  */
 unsigned floatScale2(unsigned uf) {
-  return 2;
+  // 0[111 ..11 1]000 ..00
+  // 1 is where exp is. to get exp
+  int exp_mask = 0x7f800000;
+  // 1[000 ..00 0]111 ..11
+  // 1 is where exp is. to overlay exp
+  int anti_exp_mask = 0x807fffff;
+  int exp = (uf&exp_mask)>>23;
+  int sign = uf&(1<<31);
+  if(exp==0) return uf<<1|sign;
+  if(exp==255) return uf;
+  exp++;
+  if(exp==255) return exp_mask|sign;
+  return (exp<<23)|(uf&anti_exp_mask);
 }
 /* 
  * floatFloat2Int - Return bit-level equivalent of expression (int) f
@@ -276,7 +321,29 @@ unsigned floatScale2(unsigned uf) {
  *   Rating: 4
  */
 int floatFloat2Int(unsigned uf) {
-  return 2;
+  int sign = uf>>31;
+  int exp = ((uf&0x7f800000)>>23)-127;
+  // complements shadowed 1 ahead of number
+  int frac = (uf&0x007fffff)|0x00800000;
+  // ignore sign and judge 0
+  if(!(uf&0x7fffffff)) return 0;
+
+  // overflow
+  if(exp > 31) return 0x80000000;
+  // decimal cast to 0
+  if(exp < 0) return 0;
+
+  // 23 is the number of frac bits 32 - 9 = 23
+  // we need to complement 0
+  if(exp > 23) frac <<= (exp - 23);
+  else frac >>= (23 - exp);
+
+  // check whether overflow
+  if(!((frac >> 31) ^ sign)) return frac; // sign is same with before
+  // sign is 1 and sign is different from before, overflow
+  else if(frac >> 31) return 0x80000000; 
+  // sign is different from before and now is positive, get the minus
+  else return ~frac + 1;
 }
 /* 
  * floatPower2 - Return bit-level equivalent of the expression 2.0^x
@@ -292,5 +359,10 @@ int floatFloat2Int(unsigned uf) {
  *   Rating: 4
  */
 unsigned floatPower2(int x) {
-    return 2;
+  // 2.0^x = (1.0 * 2^1)^x = 1.0 * 2^x
+  // x cant be bigger than 255
+  int exp = x + 127;
+  if(exp <= 0) return 0;
+  if(exp >= 255) return 0x7f800000; // Positive infinity
+  return exp << 23;
 }
