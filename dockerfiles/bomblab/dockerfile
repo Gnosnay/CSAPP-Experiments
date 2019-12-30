@@ -1,0 +1,11 @@
+# base image
+FROM yansongsongsong/csapp:base
+
+RUN ["apt-get", "install", "-y", "git", "build-essential", "module-assistant", "gcc-multilib", "g++-multilib", "gdb"]
+# Bomb Lab [Updated 1/12/16]
+RUN wget http://csapp.cs.cmu.edu/3e/bomb.tar
+RUN ["tar", "xvf", "bomb.tar", "-C", "/root/"]
+RUN echo $'printf "%-40s %s\n" "This lab is:"  "bomblab"' >> /root/.zshrc
+
+EXPOSE 22
+CMD ["/usr/sbin/sshd", "-D"]

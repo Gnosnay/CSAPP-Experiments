@@ -2,8 +2,10 @@
 FROM yansongsongsong/csapp:base
 
 RUN ["apt-get", "install", "-y", "git", "build-essential", "module-assistant", "gcc-multilib", "g++-multilib"]
+# 2019.9.15 edition
 RUN wget http://csapp.cs.cmu.edu/3e/datalab-handout.tar
 RUN ["tar", "xvf", "datalab-handout.tar", "-C", "/root/"]
+RUN echo $'printf "%-40s %s\n" "This lab is:"  "datalab"' >> /root/.zshrc
 
 EXPOSE 22
 CMD ["/usr/sbin/sshd", "-D"]

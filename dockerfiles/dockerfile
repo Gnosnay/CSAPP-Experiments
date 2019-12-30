@@ -12,13 +12,29 @@ RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so
 ENV NOTVISIBLE "in users profile"
 RUN echo "export VISIBLE=now" >> /etc/profile
 
-RUN ["apt-get", "install", "-y", "zsh"]
-RUN ["apt-get", "install", "-y", "git"]
-#RUN ["apt-get", "install", "-y", "git", "build-essential", "module-assistant", "gcc-multilib", "g++-multilib"]
+RUN ["apt-get", "update"]
+RUN ["apt-get", "install", "-y", "zsh", "git", "vim", "gdb"]
 RUN wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | zsh || true
 RUN ln -f /bin/zsh /bin/sh
 RUN ["chsh", "-s", "/bin/zsh"]
-#RUN wget https://github.com/Amano-Sei/MyCSAPPsolution/raw/master/datalab-handout.tar
+RUN echo $'\n\
+dis=`cat /etc/issue`\n\
+dis=${dis//\\l/}\n\
+dis=${dis//\\n/}\n\
+author="yansong"\n\
+email="yansongsongsong@gmail.com"\n\
+github="https://github.com/Yansongsongsong/CSAPP-Experiments"\n\
+os_info=`uname -r`\n\
+\n\
+echo ""\n\
+printf "%-40s %s\n" "OS info:"  "$os_info"\n\
+printf "%-40s %s\n" "Linux distribution:"  "$dis"\n\
+printf "%-40s %s\n" "Env author:"  "$author"\n\
+printf "%-40s %s\n" "Question? email:"  "$email"\n\
+printf "%-40s %s\n" "github:"  "$github"\n\
+echo "Change dir to home. Enjoy."\n\
+echo ""\n\
+' >> /root/.zshrc
 
 EXPOSE 22
 CMD ["/usr/sbin/sshd", "-D"]
