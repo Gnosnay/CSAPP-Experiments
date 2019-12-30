@@ -19,8 +19,6 @@ RUN ln -f /bin/zsh /bin/sh
 RUN ["chsh", "-s", "/bin/zsh"]
 RUN echo $'\n\
 dis=`cat /etc/issue`\n\
-dis=${dis//\\l/}\n\
-dis=${dis//\\n/}\n\
 author="yansong"\n\
 email="yansongsongsong@gmail.com"\n\
 github="https://github.com/Yansongsongsong/CSAPP-Experiments"\n\
