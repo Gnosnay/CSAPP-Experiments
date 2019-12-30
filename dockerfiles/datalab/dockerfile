@@ -1,0 +1,9 @@
+# base image
+FROM yansongsongsong/csapp:base
+
+RUN ["apt-get", "install", "-y", "git", "build-essential", "module-assistant", "gcc-multilib", "g++-multilib"]
+RUN wget http://csapp.cs.cmu.edu/3e/datalab-handout.tar
+RUN ["tar", "xvf", "datalab-handout.tar", "-C", "/root/"]
+
+EXPOSE 22
+CMD ["/usr/sbin/sshd", "-D"]
