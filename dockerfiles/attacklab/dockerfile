@@ -1,0 +1,12 @@
+# base image
+FROM yansongsongsong/csapp:base
+
+RUN ["apt-get", "install", "-y", "git", "build-essential", "module-assistant", "gcc-multilib", "g++-multilib", "gdb"]
+# Attack Lab [Updated 1/11/16]
+RUN wget http://csapp.cs.cmu.edu/3e/target1.tar
+RUN ["tar", "xvf", "target1.tar", "-C", "/root/"]
+RUN ["mv", "/root/target1", "/root/attacklab"]
+RUN echo $'printf "%-40s %s\n" "This lab is:"  "attacklab"' >> /root/.zshrc
+
+EXPOSE 22
+CMD ["/usr/sbin/sshd", "-D"]
