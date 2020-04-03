@@ -1,0 +1,11 @@
+# base image
+FROM yansongsongsong/csapp:base
+
+RUN ["apt-get", "install", "-y", "git", "build-essential", "module-assistant", "gcc-multilib", "g++-multilib", "gdb"]
+# Cache Lab [Updated 5/2/16] 
+RUN wget http://csapp.cs.cmu.edu/3e/cachelab-handout.tar
+RUN ["tar", "xvf", "cachelab-handout.tar", "-C", "/root/"]
+RUN echo $'printf "%-40s %s\n" "This lab is:"  "cachelab"' >> /root/.zshrc
+
+EXPOSE 22
+CMD ["/usr/sbin/sshd", "-D"]
