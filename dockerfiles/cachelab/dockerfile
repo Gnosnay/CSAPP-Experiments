@@ -8,4 +8,5 @@ RUN ["tar", "xvf", "cachelab-handout.tar", "-C", "/root/"]
 RUN echo $'printf "%-40s %s\n" "This lab is:"  "cachelab"' >> /root/.zshrc
 
 EXPOSE 22
+RUN ["apt-get", "install", "-y", "python"]
 CMD ["/usr/sbin/sshd", "-D"]
