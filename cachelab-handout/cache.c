@@ -70,19 +70,16 @@ void destroyCache(Cache *cache) {
  * @param line one line from trace file
  */
 void analyseOneLine(Cache *cache, char *line) {
-//    if (line == NULL) {
-//        // is EOF
-//    }
 //    char *op = malloc(sizeof(*op));
 //    int *addr = malloc(sizeof(*addr));
 //    splitOneInst(line, op, addr);
-//    switch (*op) {
-//        case 'L':
-//        case 'S':
-//            break;
-//        case 'M':
-//            break;
-//        default:
+//    if (*op == 'I') return;
+//    int res = accessMem(cache, addr);
+//    // res is MISS -> line + ' miss'
+//    // res is EVICTION -> line + ' miss eviction'
+//    // res is HIT -> line + ' hit'
+//    if (*op == 'M') {
+//        // resLine + ' hit'
 //    }
 //    if (cache->verboseFlag) {
 //        // TODO
