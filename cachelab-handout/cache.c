@@ -3,17 +3,57 @@
 #include <stdlib.h>
 #include "cache.h"
 #include "debug.h"
+#define INVALID 0x20150912
 
-CacheSet *createCacheSet(int linePerSet, int offsetBits) {
-    return NULL;
+int int_pow(int base, int exp) {
+    int result = 1;
+    while (exp) {
+        if (exp % 2)
+            result *= base;
+        exp /= 2;
+        base *= base;
+    }
+    return result;
 }
 
-void destroyCacheSet(CacheSet *cacheSet){
+void initCacheSet(CacheSet *set, int linePerSet) {
+    debug_print("initCacheSet begins: linePerSet: [%d]\n", linePerSet);
+    set->lines = malloc(linePerSet * sizeof(CacheLine));
+    CacheLine *line = set->lines;
+    for (int i = 0; i < linePerSet; ++i) {
+        debug_print(" line[%d]: %p\n", i, line);
+        line->tag = INVALID;
+        line->valid = INVALID;
+        line++;
+    }
+    set->capacity = linePerSet;
+    debug_print(" inited set: %p\n", set);
+}
+
+void destroyCacheSet(CacheSet *cacheSet) {
 
 }
 
-Cache *createCache(int setBits, int linePerSet, int offsetBits) {
-    return NULL;
+Cache *createCache(int setBits, int linePerSet, int offsetBits, int verboseFlag) {
+    debug_print("createCache begins: verboseFlag: %d\n", verboseFlag);
+    int setsCount = int_pow(2, setBits);
+    int tagBits = 64 - setBits - offsetBits;
+    Cache *cache = malloc(sizeof(Cache));
+    cache->misses = 0;
+    cache->hits = 0;
+    cache->evictions = 0;
+    cache->verboseFlag = verboseFlag;
+    cache->setSize = setsCount;
+    cache->tagBits = tagBits;
+    cache->cacheSets = malloc(setsCount * sizeof(CacheSet));
+    CacheSet *set = cache->cacheSets;
+    for (int i = 0; i < setsCount; ++i) {
+        debug_print(" set[%d]: %p\n", i, set);
+        initCacheSet(set, linePerSet);
+        set++;
+    }
+    debug_print(" cache: %p\n", cache);
+    return cache;
 }
 
 void destroyCache(Cache *cache) {
@@ -59,23 +99,23 @@ void analyseOneLine(Cache *cache, char *line) {
  */
 void splitOneInst(char *line, char *op, long *addr) {
     debug_print("splitOneInst begins: line: [%s]\n", line);
-    if (line[0] == 'I'){
+    if (line[0] == 'I') {
         *op = 'I';
         *addr = -1;
         debug_print(" is I instruction: %c\n", *line);
         return;
     }
-    *op = *(line+1);
+    *op = *(line + 1);
     line += 3;
-    char* cursor = line;
+    char *cursor = line;
     int addrLength = 0;
-    while (*cursor != ','){
+    while (*cursor != ',') {
         debug_print(" move cursor: %c\n", *cursor);
         addrLength++;
         cursor++;
     }
     debug_print(" cursor: [%s]\n", line);
-    char* hex = malloc(addrLength * sizeof(*hex));
+    char *hex = malloc(addrLength * sizeof(*hex));
     for (int i = 0; i < addrLength; ++i) {
         hex[i] = line[i];
     }
@@ -83,16 +123,4 @@ void splitOneInst(char *line, char *op, long *addr) {
     *addr = (long) strtol(hex, NULL, 16);
     debug_print(" addr: [%lx]\n", *addr);
     return;
-}
-
-void hitsPlusOne(Cache *cache) {
-
-}
-
-void missesPlusOne(Cache *cache) {
-
-}
-
-void evictionsPlusOne(Cache *cache) {
-
 }

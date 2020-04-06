@@ -4,23 +4,25 @@ typedef struct CacheLine {
 } CacheLine;
 
 typedef struct CacheSet {
-    CacheLine *cacheLine;
+    CacheLine *lines;
     int capacity;
 } CacheSet;
 
 typedef struct Cache {
-    CacheSet *cacheSet;
+    CacheSet *cacheSets;
     int hits;
     int misses;
     int evictions;
     int verboseFlag;
+    int setSize;
+    int tagBits;
 } Cache;
 
-CacheSet *createCacheSet(int linePerSet, int offsetBits);
+void initCacheSet(CacheSet *set, int linePerSet);
 
 void destroyCacheSet(CacheSet *cacheSet);
 
-Cache *createCache(int setBits, int linePerSet, int offsetBits);
+Cache *createCache(int setBits, int linePerSet, int offsetBits, int verboseFlag);
 
 void destroyCache(Cache *cache);
 

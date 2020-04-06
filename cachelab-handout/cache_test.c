@@ -4,6 +4,8 @@
 #include <assert.h>
 #include "cache.h"
 
+#define ARRAY_SIZE( array ) ( sizeof( array ) / sizeof( array[0] ) )
+
 void splitOneInstTest() {
     char *op = malloc(sizeof(*op));
     long *addr = malloc(sizeof(*addr));
@@ -42,6 +44,19 @@ void splitOneInstTest() {
     free(addr);
 }
 
+void structBuild(){
+    Cache* cache = NULL;
+    cache = createCache(2, 5, 3, 0);
+    assert(cache != NULL);
+    assert(cache->tagBits == 64 - 2 - 3);
+    assert(cache->setSize == 4);
+    assert(cache->verboseFlag == 0);
+    assert(cache->cacheSets != NULL);
+    assert(cache->cacheSets->lines != NULL);
+    assert(cache->cacheSets->capacity == 5);
+}
+
 int main() {
     splitOneInstTest();
+    structBuild();
 }
