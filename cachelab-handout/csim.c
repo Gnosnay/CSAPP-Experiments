@@ -1,18 +1,10 @@
-#include "cachelab.h"
 #include <ctype.h>
 #include <getopt.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-
-// set 1 for printing debug info
-#define DEBUG 0
-// do { ... } while (0) idiom ensures that the code acts like a statement
-#define debug_print(fmt, ...)                                                  \
-  do {                                                                         \
-    if (DEBUG)                                                                 \
-      fprintf(stderr, fmt, __VA_ARGS__);                                       \
-  } while (0)
+#include "cachelab.h"
+#include "debug.h"
 
 /** global args & value */
 int v_flag = 0;               // verbose flag
