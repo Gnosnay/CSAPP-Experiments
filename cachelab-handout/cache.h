@@ -16,6 +16,8 @@ typedef struct Cache {
     int verboseFlag;
     int setSize;
     int tagBits;
+    int offsetBits;
+    int setBits;
 } Cache;
 
 void initCacheSet(CacheSet *set, int linePerSet);
@@ -36,6 +38,8 @@ void destroyCache(Cache *cache);
  * @param line one line from trace file
  */
 void analyseOneLine(Cache *cache, char *line);
+
+int accessMem(Cache *cache, long addr);
 
 /**
  *

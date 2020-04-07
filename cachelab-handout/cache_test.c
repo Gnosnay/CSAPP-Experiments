@@ -56,7 +56,17 @@ void structBuild(){
     assert(cache->cacheSets->capacity == 5);
 }
 
+void accessMemTest(){
+    Cache* cache = NULL;
+    cache = createCache(2, 5, 3, 0);
+    assert(accessMem(cache, 0x7) == 0);
+    assert(accessMem(cache, 0xF) == 1);
+    assert(accessMem(cache, 0x17) == 2);
+    assert(accessMem(cache, 0x1F) == 3);
+}
+
 int main() {
     splitOneInstTest();
     structBuild();
+    accessMemTest();
 }

@@ -3,7 +3,11 @@
 #include <stdlib.h>
 #include "cache.h"
 #include "debug.h"
+
 #define INVALID 0x20150912
+#define HIT 0x1221
+#define EVICTION 0x1222
+#define MISS 0x1223
 
 int int_pow(int base, int exp) {
     int result = 1;
@@ -14,6 +18,10 @@ int int_pow(int base, int exp) {
         base *= base;
     }
     return result;
+}
+
+unsigned long genMask(int bits) {
+    return ((unsigned long) 1 << bits) - 1;
 }
 
 void initCacheSet(CacheSet *set, int linePerSet) {
@@ -45,6 +53,8 @@ Cache *createCache(int setBits, int linePerSet, int offsetBits, int verboseFlag)
     cache->verboseFlag = verboseFlag;
     cache->setSize = setsCount;
     cache->tagBits = tagBits;
+    cache->offsetBits = offsetBits;
+    cache->setBits = setBits;
     cache->cacheSets = malloc(setsCount * sizeof(CacheSet));
     CacheSet *set = cache->cacheSets;
     for (int i = 0; i < setsCount; ++i) {
@@ -87,6 +97,18 @@ void analyseOneLine(Cache *cache, char *line) {
 //    }
 }
 
+int accessMem(Cache *cache, long addr) {
+    long tagSetBits = addr >> cache->offsetBits;
+    const long SET_MASK = genMask(cache->setBits);
+    const long TAG_MASK = genMask(cache->tagBits);
+    debug_print("SET_MASK: %lx\n", SET_MASK);
+    debug_print("TAG_MASK: %lx\n", TAG_MASK);
+
+    int setIndex = tagSetBits & SET_MASK;
+    CacheSet* hitSet = (cache->cacheSets + setIndex);
+    debug_print("set addr: %p\n", hitSet);
+    return setIndex;
+}
 
 /**
  *
