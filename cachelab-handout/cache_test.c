@@ -4,7 +4,7 @@
 #include <assert.h>
 #include "cache.h"
 
-#define ARRAY_SIZE( array ) ( sizeof( array ) / sizeof( array[0] ) )
+#define ARRAY_SIZE(array) ( sizeof( array ) / sizeof( array[0] ) )
 
 void splitOneInstTest() {
     char *op = malloc(sizeof(*op));
@@ -44,8 +44,8 @@ void splitOneInstTest() {
     free(addr);
 }
 
-void structBuild(){
-    Cache* cache = NULL;
+void structBuild() {
+    Cache *cache = NULL;
     cache = createCache(2, 5, 3, 0);
     assert(cache != NULL);
     assert(cache->tagBits == 64 - 2 - 3);
@@ -56,13 +56,36 @@ void structBuild(){
     assert(cache->cacheSets->capacity == 5);
 }
 
-void accessMemTest(){
-    Cache* cache = NULL;
+void splitAddrTest() {
+    Cache *cache = NULL;
     cache = createCache(2, 5, 3, 0);
-    assert(accessMem(cache, 0x7) == 0);
-    assert(accessMem(cache, 0xF) == 1);
-    assert(accessMem(cache, 0x17) == 2);
-    assert(accessMem(cache, 0x1F) == 3);
+    int setIndex = 0;
+    int tagIndex = 0;
+    splitAddr(cache, 0x7, &setIndex, &tagIndex);
+    assert(setIndex == 0);
+    assert(tagIndex == 0);
+    splitAddr(cache, 0xF, &setIndex, &tagIndex);
+    assert(setIndex == 1);
+    assert(tagIndex == 0);
+    splitAddr(cache, 0x17, &setIndex, &tagIndex);
+    assert(setIndex == 2);
+    assert(tagIndex == 0);
+    splitAddr(cache, 0x1F, &setIndex, &tagIndex);
+    assert(setIndex == 3);
+    assert(tagIndex == 0);
+
+    // 01 00 111
+    splitAddr(cache, 0x27, &setIndex, &tagIndex);
+    assert(setIndex == 0);
+    assert(tagIndex == 1);
+    // 10 01 111
+    splitAddr(cache, 0x4F, &setIndex, &tagIndex);
+    assert(setIndex == 1);
+    assert(tagIndex == 2);
+    // 11 10 111
+    splitAddr(cache, 0x77, &setIndex, &tagIndex);
+    assert(setIndex == 2);
+    assert(tagIndex == 3);
 }
 
 int main() {

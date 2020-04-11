@@ -39,6 +39,8 @@ void destroyCache(Cache *cache);
  */
 void analyseOneLine(Cache *cache, char *line);
 
+void splitAddr(Cache *cache, long addr, int *setIndex, int *tagIndex);
+
 int accessMem(Cache *cache, long addr);
 
 /**

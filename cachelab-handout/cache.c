@@ -25,17 +25,17 @@ unsigned long genMask(int bits) {
 }
 
 void initCacheSet(CacheSet *set, int linePerSet) {
-    debug_print("initCacheSet begins: linePerSet: [%d]\n", linePerSet);
+    debug_println("initCacheSet begins: linePerSet: [%d]", linePerSet);
     set->lines = malloc(linePerSet * sizeof(CacheLine));
     CacheLine *line = set->lines;
     for (int i = 0; i < linePerSet; ++i) {
-        debug_print(" line[%d]: %p\n", i, line);
+        debug_println(" line[%d]: %p", i, line);
         line->tag = INVALID;
         line->valid = INVALID;
         line++;
     }
     set->capacity = linePerSet;
-    debug_print(" inited set: %p\n", set);
+    debug_println(" inited set: %p", set);
 }
 
 void destroyCacheSet(CacheSet *cacheSet) {
@@ -43,7 +43,7 @@ void destroyCacheSet(CacheSet *cacheSet) {
 }
 
 Cache *createCache(int setBits, int linePerSet, int offsetBits, int verboseFlag) {
-    debug_print("createCache begins: verboseFlag: %d\n", verboseFlag);
+    debug_println("createCache begins: verboseFlag: %d", verboseFlag);
     int setsCount = int_pow(2, setBits);
     int tagBits = 64 - setBits - offsetBits;
     Cache *cache = malloc(sizeof(Cache));
@@ -58,11 +58,11 @@ Cache *createCache(int setBits, int linePerSet, int offsetBits, int verboseFlag)
     cache->cacheSets = malloc(setsCount * sizeof(CacheSet));
     CacheSet *set = cache->cacheSets;
     for (int i = 0; i < setsCount; ++i) {
-        debug_print(" set[%d]: %p\n", i, set);
+        debug_println(" set[%d]: %p", i, set);
         initCacheSet(set, linePerSet);
         set++;
     }
-    debug_print(" cache: %p\n", cache);
+    debug_println(" cache: %p", cache);
     return cache;
 }
 
@@ -97,17 +97,36 @@ void analyseOneLine(Cache *cache, char *line) {
 //    }
 }
 
-int accessMem(Cache *cache, long addr) {
+void splitAddr(Cache *cache, long addr, int *setIndex, int *tagIndex) {
     long tagSetBits = addr >> cache->offsetBits;
     const long SET_MASK = genMask(cache->setBits);
     const long TAG_MASK = genMask(cache->tagBits);
-    debug_print("SET_MASK: %lx\n", SET_MASK);
-    debug_print("TAG_MASK: %lx\n", TAG_MASK);
 
-    int setIndex = tagSetBits & SET_MASK;
-    CacheSet* hitSet = (cache->cacheSets + setIndex);
-    debug_print("set addr: %p\n", hitSet);
-    return setIndex;
+    debug_println("original data: addr: %lx, offsetBits: %d, setBits: %d, tagBits: %d",
+                  addr,
+                  cache->offsetBits,
+                  cache->setBits,
+                  cache->tagBits
+    );
+    debug_println("[tag & set] bits: "
+                          P_B, BYTE_TO_BINARY(tagSetBits));
+    debug_println("SET_MASK: "
+                          P_B, BYTE_TO_BINARY(SET_MASK));
+    debug_println("TAG_MASK: "
+                          P_B, BYTE_TO_BINARY(TAG_MASK));
+
+    *setIndex = tagSetBits & SET_MASK;
+    *tagIndex = tagSetBits >> cache->setBits;
+
+    debug_println("setIndex: %d, binary: "
+                          P_B, *setIndex, BYTE_TO_BINARY(*setIndex));
+    debug_println("tagIndex: %d", *tagIndex);
+
+}
+
+int accessMem(Cache *cache, long addr) {
+//    CacheSet *hitSet = (cache->cacheSets + setIndex);
+    return 0;
 }
 
 /**
@@ -117,11 +136,11 @@ int accessMem(Cache *cache, long addr) {
  * @param addr hex format of addr of this trace line
  */
 void splitOneInst(char *line, char *op, long *addr) {
-    debug_print("splitOneInst begins: line: [%s]\n", line);
+    debug_println("splitOneInst begins: line: [%s]", line);
     if (line[0] == 'I') {
         *op = 'I';
         *addr = -1;
-        debug_print(" is I instruction: %c\n", *line);
+        debug_println(" is I instruction: %c", *line);
         return;
     }
     *op = *(line + 1);
@@ -129,17 +148,17 @@ void splitOneInst(char *line, char *op, long *addr) {
     char *cursor = line;
     int addrLength = 0;
     while (*cursor != ',') {
-        debug_print(" move cursor: %c\n", *cursor);
+        debug_println(" move cursor: %c", *cursor);
         addrLength++;
         cursor++;
     }
-    debug_print(" cursor: [%s]\n", line);
+    debug_println(" cursor: [%s]", line);
     char *hex = malloc(addrLength * sizeof(*hex));
     for (int i = 0; i < addrLength; ++i) {
         hex[i] = line[i];
     }
-    debug_print(" hex: [%s]\n", hex);
+    debug_println(" hex: [%s]", hex);
     *addr = (long) strtol(hex, NULL, 16);
-    debug_print(" addr: [%lx]\n", *addr);
+    debug_println(" addr: [%lx]", *addr);
     return;
 }

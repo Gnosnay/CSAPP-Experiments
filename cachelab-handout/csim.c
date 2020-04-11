@@ -64,11 +64,11 @@ int main(int argc, char *argv[]) {
       abort();
     }
 
-  debug_print("v_flag: %d\n", v_flag);
-  debug_print("set_bits: %d\n", set_bits);
-  debug_print("E_value: %d\n", E_value);
-  debug_print("offset_bits: %d\n", offset_bits);
-  debug_print("*trace_file_path: %s\n", trace_file_path);
+  debug_println("v_flag: %d\n", v_flag);
+  debug_println("set_bits: %d\n", set_bits);
+  debug_println("E_value: %d\n", E_value);
+  debug_println("offset_bits: %d\n", offset_bits);
+  debug_println("*trace_file_path: %s\n", trace_file_path);
   // printSummary(0, 0, 0);
   return 0;
 }
