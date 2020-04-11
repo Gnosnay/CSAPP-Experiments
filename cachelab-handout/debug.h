@@ -1,5 +1,5 @@
 // set 1 for printing debug info
-#define DEBUG 1
+#define DEBUG 0
 // do { ... } while (0) idiom ensures that the code acts like a statement
 #define debug_println(fmt, ...)                                                  \
   do {                                                                         \

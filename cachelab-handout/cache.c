@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdlib.h>
+#include <string.h>
 #include "cache.h"
 #include "debug.h"
 
@@ -34,11 +35,42 @@ void initCacheSet(CacheSet *set, int linePerSet) {
         line->valid = INVALID;
         line++;
     }
+    set->size = 0;
     set->capacity = linePerSet;
     debug_println(" inited set: %p", set);
 }
 
 void destroyCacheSet(CacheSet *cacheSet) {
+
+}
+
+void hitCacheLine(CacheSet *set, int hitTag) {
+    CacheLine *p = set->lines;
+    int hold = hitTag;
+    do {
+        int t = p->tag;
+        p->tag = hold;
+        hold = t;
+    } while (hold != hitTag);
+}
+
+void addCacheLine(CacheSet *set, int tag) {
+    // if it is full, last one will be removed
+    // otherwise, add to array's head
+    if (set->size < set->capacity) {
+        set->size++;
+    }
+    CacheLine *p = set->lines;
+    for (int i = 0; i < set->size; ++i) {
+        int t = p->tag;
+        p->tag = tag;
+        p->valid = 1;
+        tag = t;
+        p++;
+    }
+}
+
+void removeCacheLine(CacheSet *set) {
 
 }
 
@@ -70,33 +102,6 @@ void destroyCache(Cache *cache) {
 
 }
 
-/**
- * 1. split instruction to [space]operation address,size
- * 2. I ignored, L S are same and M is L + S.
- *  2.1 case L:
- *  2.2 case S:
- *  2.3 case M:
- * 3. prints debug info
- * @param line one line from trace file
- */
-void analyseOneLine(Cache *cache, char *line) {
-//    char *op = malloc(sizeof(*op));
-//    int *addr = malloc(sizeof(*addr));
-//    splitOneInst(line, op, addr);
-//    if (*op == 'I') return;
-//    int res = accessMem(cache, addr);
-//    // res is MISS -> line + ' miss'
-//    // res is EVICTION -> line + ' miss eviction'
-//    // res is HIT -> line + ' hit'
-//    if (*op == 'M') {
-//        // resLine + ' hit'
-//    }
-//    if (cache->verboseFlag) {
-//        // TODO
-//        printf();
-//    }
-}
-
 void splitAddr(Cache *cache, long addr, int *setIndex, int *tagIndex) {
     long tagSetBits = addr >> cache->offsetBits;
     const long SET_MASK = genMask(cache->setBits);
@@ -125,8 +130,40 @@ void splitAddr(Cache *cache, long addr, int *setIndex, int *tagIndex) {
 }
 
 int accessMem(Cache *cache, long addr) {
-//    CacheSet *hitSet = (cache->cacheSets + setIndex);
-    return 0;
+    int setIndex = 0;
+    int tagIndex = 0;
+    splitAddr(cache, addr, &setIndex, &tagIndex);
+
+    // 1. locate set
+    CacheSet *hitSet = (cache->cacheSets + setIndex);
+
+    // 2. tag matching
+    CacheLine *hitLine = NULL;
+    CacheLine *p = hitSet->lines;
+    for (int i = 0; i < hitSet->capacity; ++i) {
+        if (p->valid != 0 && p->tag == tagIndex) {
+            hitLine = p;
+            break;
+        } else {
+            p++;
+        }
+    }
+
+    if (hitLine != NULL) {
+        // 2.1 is matching
+        hitCacheLine(hitSet, tagIndex);
+        return HIT;
+    } else {
+        // 2.2 is not matching
+        addCacheLine(hitSet, tagIndex);
+        // 2.2.1 size < capacity, add it directly
+        if (hitSet->size < hitSet->capacity) {
+            return MISS;
+        } else {
+            // 2.2.2 size == capacity, replace one line with LRU
+            return EVICTION;
+        }
+    }
 }
 
 /**
@@ -161,4 +198,47 @@ void splitOneInst(char *line, char *op, long *addr) {
     *addr = (long) strtol(hex, NULL, 16);
     debug_println(" addr: [%lx]", *addr);
     return;
+}
+
+/**
+ * 1. split instruction to [space]operation address,size
+ * 2. I ignored, L S are same and M is L + S.
+ *  2.1 case L:
+ *  2.2 case S:
+ *  2.3 case M:
+ * 3. prints debug info
+ * @param line one line from trace file
+ */
+void analyseOneLine(Cache *cache, char *line, int *hit, int *miss, int *eviction) {
+    char *op = malloc(sizeof(*op));
+    long *addr = malloc(sizeof(*addr));
+    splitOneInst(line, op, addr);
+    if (*op == 'I') return;
+    int res = accessMem(cache, *addr);
+    char str[80];
+    switch (res) {
+        case MISS:
+            strcpy(str, line);
+            strcat(str, " miss");
+            *miss += 1;
+            break;
+        case EVICTION:
+            strcpy(str, line);
+            strcat(str, " miss eviction");
+            *miss += 1;
+            *eviction += 1;
+            break;
+        case HIT:
+            strcpy(str, line);
+            strcat(str, " hit");
+            *hit += 1;
+            break;
+    }
+    if (*op == 'M') {
+        strcat(str, " hit");
+        *hit += 1;
+    }
+    if (cache->verboseFlag) {
+        printf("%s\n", str);
+    }
 }

@@ -91,5 +91,5 @@ void splitAddrTest() {
 int main() {
     splitOneInstTest();
     structBuild();
-    accessMemTest();
+    splitAddrTest();
 }
