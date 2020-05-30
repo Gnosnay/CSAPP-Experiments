@@ -1,0 +1,12 @@
+# base image
+FROM yansongsongsong/csapp:base
+
+RUN ["apt-get", "install", "-y", "git", "build-essential", "module-assistant", "gcc-multilib", "g++-multilib", "gdb"]
+# Shell Lab [Updated 7/28/03]
+RUN wget http://csapp.cs.cmu.edu/3e/shlab-handout.tar
+RUN ["tar", "xvf", "shlab-handout.tar", "-C", "/root/"]
+RUN echo $'printf "%-40s %s\n" "This lab is:"  "shelllab"' >> /root/.zshrc
+
+EXPOSE 22
+RUN ["apt-get", "install", "-y", "valgrind", "python"]
+CMD ["/usr/sbin/sshd", "-D"]
