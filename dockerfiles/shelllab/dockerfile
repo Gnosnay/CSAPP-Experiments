@@ -8,5 +8,4 @@ RUN ["tar", "xvf", "shlab-handout.tar", "-C", "/root/"]
 RUN echo $'printf "%-40s %s\n" "This lab is:"  "shelllab"' >> /root/.zshrc
 
 EXPOSE 22
-RUN ["apt-get", "install", "-y", "valgrind", "python"]
 CMD ["/usr/sbin/sshd", "-D"]
