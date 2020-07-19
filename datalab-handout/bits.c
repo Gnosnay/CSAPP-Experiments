@@ -373,8 +373,13 @@ int floatFloat2Int(unsigned uf) {
 unsigned floatPower2(int x) {
   // 2.0^x = (1.0 * 2^1)^x = 1.0 * 2^x
   // x cant be bigger than 255
-  int exp = x + 127;
-  if(exp <= 0) return 0;
-  if(exp >= 255) return 0x7f800000; // Positive infinity
-  return exp << 23;
+  if (x >= -149 && x <= -127) {
+    int i = 149 + x;
+    return 1 << i;
+  } else {
+    int exp = x + 127;
+    if(exp <= 0) return 0;
+    if(exp >= 255) return 0x7f800000; // Positive infinity
+    return exp << 23;
+  }
 }
