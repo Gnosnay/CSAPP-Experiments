@@ -1,0 +1,14 @@
+# base image
+FROM yansongsongsong/csapp:base
+
+RUN ["apt-get", "install", "-y", "git", "build-essential", "module-assistant", "gcc-multilib", "g++-multilib", "gdb"]
+# Cache Lab [Updated 9/2/14]
+RUN wget http://csapp.cs.cmu.edu/3e/malloclab-handout.tar
+RUN ["tar", "xvf", "malloclab-handout.tar", "-C", "/root/"]
+RUN echo $'printf "%-40s %s\n" "This lab is:"  "malloclab"' >> /root/.zshrc
+
+COPY ./traces /root/malloclab-handout
+
+EXPOSE 22
+RUN ["apt-get", "install", "-y", "valgrind", "python"]
+CMD ["/usr/sbin/sshd", "-D"]
