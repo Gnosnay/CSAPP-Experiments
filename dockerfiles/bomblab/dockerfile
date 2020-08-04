@@ -1,6 +1,8 @@
 # base image
 FROM yansongsongsong/csapp:base
 
+RUN ["apt-get", "update", "-y"]
+
 RUN ["apt-get", "install", "-y", "git", "build-essential", "module-assistant", "gcc-multilib", "g++-multilib", "gdb"]
 # Bomb Lab [Updated 1/12/16]
 RUN wget http://csapp.cs.cmu.edu/3e/bomb.tar

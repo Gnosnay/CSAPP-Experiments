@@ -1,6 +1,8 @@
 # base image
 FROM yansongsongsong/csapp:base
 
+RUN ["apt-get", "update", "-y"]
+
 RUN ["apt-get", "install", "-y", "git", "build-essential", "module-assistant", "gcc-multilib", "g++-multilib", "gdb"]
 # Shell Lab [Updated 7/28/03]
 RUN wget http://csapp.cs.cmu.edu/3e/shlab-handout.tar
