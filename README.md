@@ -4,7 +4,7 @@
 
 This project provides the docker environments for you to take the lessons of CSAPP.
 
-## Precipitates
+## Prerequisites
 
 - [docker](https://docs.docker.com/docker-for-mac/install/)
 
