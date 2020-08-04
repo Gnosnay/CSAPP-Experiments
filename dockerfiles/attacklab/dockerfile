@@ -1,7 +1,7 @@
 # base image
 FROM yansongsongsong/csapp:base
 
-RUN ["apt-get" "update" "-y"]
+RUN ["apt-get", "update", "-y"]
 
 RUN ["apt-get", "install", "-y", "git", "build-essential", "module-assistant", "gcc-multilib", "g++-multilib", "gdb"]
 # Attack Lab [Updated 1/11/16]
