@@ -1,6 +1,8 @@
 # base image
 FROM yansongsongsong/csapp:base
 
+RUN ["sudo" "apt-get" "update" "-y"]
+
 RUN ["apt-get", "install", "-y", "git", "build-essential", "module-assistant", "gcc-multilib", "g++-multilib", "gdb"]
 # Attack Lab [Updated 1/11/16]
 RUN wget http://csapp.cs.cmu.edu/3e/target1.tar
