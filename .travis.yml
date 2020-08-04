@@ -1,0 +1,13 @@
+language: bash
+services:
+  - docker
+sudo: required
+branches:
+  only:
+    - master
+script:
+  - ls -d ./dockerfiles/*/ | awk -F '/' '{print $3}' | xargs -I path docker build ./dockerfiles/path -t "csapp:path"
+
+after_success:
+  - echo "$DOCKER_ACCOUNT_TOKEN" | docker login -u "$DOCKER_ACCOUNT" --password-stdin
+  - ls -d ./dockerfiles/*/ | awk -F '/' '{print $3}' | xargs -I path docker push csapp:path
