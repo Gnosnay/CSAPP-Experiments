@@ -9,5 +9,5 @@ script:
   - ls -d ./dockerfiles/*/ | awk -F '/' '{print $3}' | xargs -I path docker build ./dockerfiles/path -t "$DOCKER_ACCOUNT/csapp:path"
 
 after_success:
-  - echo "$DOCKER_ACCOUNT_TOKEN" | docker login -u "$DOCKER_ACCOUNT" --password-stdin
-  - ls -d ./dockerfiles/*/ | awk -F '/' '{print $3}' | xargs -I path docker push $DOCKER_ACCOUNT/csapp:path
+  - if [ "$TO_PUSH" = "true" ]; then echo "$DOCKER_ACCOUNT_TOKEN" | docker login -u "$DOCKER_ACCOUNT" --password-stdin; else echo "WILL NOT TO PUSH IMAGES"; fi
+  - if [ "$TO_PUSH" = "true" ]; then ls -d ./dockerfiles/*/ | awk -F '/' '{print $3}' | xargs -I path docker push $DOCKER_ACCOUNT/csapp:path; fi
