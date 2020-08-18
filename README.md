@@ -38,6 +38,6 @@ If you get in trouble when doing the lab, you can get some help from this [album
 | attack lab | :white_check_mark: | `docker run --privileged -d -p 1221:22 --name attack yansongsongsong/csapp:attacklab ` |
 | cache lab  | :white_check_mark: | `docker run --privileged -d -p 1221:22 --name cache yansongsongsong/csapp:cachelab ` |
 | shell lab  | :white_check_mark: | `docker run --privileged -d -p 1221:22 --name shell yansongsongsong/csapp:shelllab` |
-| malloc lab | 🐦                  | `docker run --privileged -d -p 1221:22 --name shell yansongsongsong/csapp:malloclab` |
+| malloc lab | 🐦                  | `docker run --privileged -d -p 1221:22 --name malloc yansongsongsong/csapp:malloclab` |
 | Proxy lab  | 🐦                  | 🐦                                                            |
 
