@@ -17,6 +17,10 @@ jobs:
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - 
+        name: echo all dockerfiles
+        run: |
+        ls -d ${{ github.workspace }}/dockerfiles/*/ | awk -F '/' '{print $3}' | xargs -I path echo path
+      - 
         name: build docker image
         run: |
           ls -d ${{ github.workspace }}/dockerfiles/*/ | awk -F '/' '{print $3}' | xargs -I path docker buildx build \
