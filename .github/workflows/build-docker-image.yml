@@ -21,21 +21,6 @@ jobs:
         run: |
           ls -d ${{ github.workspace }}/dockerfiles/*/ | awk -F '/' '{print $8}' | xargs -I path echo path
       - 
-        name: print secrets
-        shell: bash
-        env:
-          DOCKER_ACCOUNT: ${{ secrets.DOCKER_ACCOUNT }}
-        run: |
-          echo "look this secret $DOCKER_ACCOUNT"
-      - 
-        name: build docker image
-        run: |
-          ls -d ${{ github.workspace }}/dockerfiles/*/ | awk -F '/' '{print $8}' | xargs -I path docker buildx build \
-            --platform linux/amd64,linux/arm64 \
-            ${{ github.workspace }}/dockerfiles/path -t "$DOCKER_ACCOUNT/csapp:path"
-        env:
-          DOCKER_ACCOUNT: ${{ secrets.DOCKER_ACCOUNT }}
-      - 
         name: docker login
         env:
           DOCKER_ACCOUNT: ${{ secrets.DOCKER_ACCOUNT }}
@@ -43,8 +28,12 @@ jobs:
         run: |
           echo "$DOCKER_ACCOUNT_TOKEN" | docker login -u "$DOCKER_ACCOUNT" --password-stdin
       - 
-        name: docker image push
+        name: build docker image
+        run: |
+          ls -d ${{ github.workspace }}/dockerfiles/*/ | awk -F '/' '{print $8}' | xargs -I path docker buildx build \
+            --platform linux/amd64,linux/arm64 \
+            ${{ github.workspace }}/dockerfiles/path \ 
+            -t "$DOCKER_ACCOUNT/csapp:path" \
+            --push
         env:
           DOCKER_ACCOUNT: ${{ secrets.DOCKER_ACCOUNT }}
-        run: |
-          ls -d ${{ github.workspace }}/dockerfiles/*/ | awk -F '/' '{print $8}' | xargs -I path docker push $DOCKER_ACCOUNT/csapp:path
