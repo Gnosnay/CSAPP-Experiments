@@ -22,22 +22,22 @@ jobs:
           ls -d ${{ github.workspace }}/dockerfiles/*/ | awk -F '/' '{print $8}' | xargs -I path echo path
       - 
         name: build docker image
-        with:
-          DOCKER_ACCOUNT: ${{ secrets.DOCKER_ACCOUNT }}
         run: |
           ls -d ${{ github.workspace }}/dockerfiles/*/ | awk -F '/' '{print $8}' | xargs -I path docker buildx build \
             --platform linux/amd64,linux/arm64 \
             ${{ github.workspace }}/dockerfiles/path -t "$DOCKER_ACCOUNT/csapp:path"
+        env:
+          DOCKER_ACCOUNT: ${{ secrets.DOCKER_ACCOUNT }}
       - 
         name: docker login
-        with:
+        env:
           DOCKER_ACCOUNT: ${{ secrets.DOCKER_ACCOUNT }}
           DOCKER_ACCOUNT_TOKEN: ${{ secrets.DOCKER_ACCOUNT_TOKEN }}
         run: |
           echo "$DOCKER_ACCOUNT_TOKEN" | docker login -u "$DOCKER_ACCOUNT" --password-stdin
       - 
         name: docker image push
-        with:
+        env:
           DOCKER_ACCOUNT: ${{ secrets.DOCKER_ACCOUNT }}
         run: |
           ls -d ${{ github.workspace }}/dockerfiles/*/ | awk -F '/' '{print $8}' | xargs -I path docker push $DOCKER_ACCOUNT/csapp:path
