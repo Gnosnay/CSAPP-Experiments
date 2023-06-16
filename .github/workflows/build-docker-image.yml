@@ -21,6 +21,13 @@ jobs:
         run: |
           ls -d ${{ github.workspace }}/dockerfiles/*/ | awk -F '/' '{print $8}' | xargs -I path echo path
       - 
+        name: print secrets
+        shell: bash
+        env:
+          DOCKER_ACCOUNT: ${{ secrets.DOCKER_ACCOUNT }}
+        run: |
+          echo "look this secret $DOCKER_ACCOUNT"
+      - 
         name: build docker image
         run: |
           ls -d ${{ github.workspace }}/dockerfiles/*/ | awk -F '/' '{print $8}' | xargs -I path docker buildx build \
