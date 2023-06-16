@@ -19,7 +19,7 @@ jobs:
       - 
         name: echo all dockerfiles
         run: |
-        ls -d ${{ github.workspace }}/dockerfiles/*/ | awk -F '/' '{print $3}' | xargs -I path echo path
+          ls -d ${{ github.workspace }}/dockerfiles/*/ | awk -F '/' '{print $3}' | xargs -I path echo path
       - 
         name: build docker image
         run: |
