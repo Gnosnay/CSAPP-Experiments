@@ -32,6 +32,6 @@ jobs:
         run: |
           ls -d ${{ github.workspace }}/dockerfiles/*/ | awk -F '/' '{print $8}' | xargs -I path docker buildx build \
             --platform linux/amd64,linux/arm64 \
-            ${{ github.workspace }}/dockerfiles/path -t "$DOCKER_ACCOUNT/csapp:path" && docker push $DOCKER_ACCOUNT/csapp:path
+            ${{ github.workspace }}/dockerfiles/path -t "$DOCKER_ACCOUNT/csapp:path" --push
         env:
           DOCKER_ACCOUNT: ${{ secrets.DOCKER_ACCOUNT }}      
