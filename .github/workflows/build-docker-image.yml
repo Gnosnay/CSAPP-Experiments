@@ -31,7 +31,7 @@ jobs:
         name: build base docker image
         run: |
           docker buildx build \
-            --platform linux/amd64,linux/arm64 \
+            --platform linux/amd64 \
             ${{ github.workspace }}/dockerfiles -t "$DOCKER_ACCOUNT/csapp:base" --push
         env:
           DOCKER_ACCOUNT: ${{ secrets.DOCKER_ACCOUNT }}
@@ -39,7 +39,7 @@ jobs:
         name: build docker image
         run: |
           ls -d ${{ github.workspace }}/dockerfiles/*/ | awk -F '/' '{print $8}' | xargs -I path docker buildx build \
-            --platform linux/amd64,linux/arm64 \
+            --platform linux/amd64 \
             ${{ github.workspace }}/dockerfiles/path -t "$DOCKER_ACCOUNT/csapp:path" --push
         env:
           DOCKER_ACCOUNT: ${{ secrets.DOCKER_ACCOUNT }}
